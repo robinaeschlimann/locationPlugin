@@ -1,0 +1,14 @@
+name: Move
+version: ${project.version}
+main: ch.aeschlimannrobin.move.impl.MoveModule
+api-version: 1.16
+
+commands:
+  setlocation:
+    description: setzt einen Punkt auf der Map, zu welchem man isch mit /move teleportieren kann
+  movetolocation:
+    description: Teleportiert den Spieler zu der eingegebenen Location
+  locations:
+    description: zeigt dir alle mit /here gesetzten Locations an
+  deletelocation:
+    description: löscht eine Location
