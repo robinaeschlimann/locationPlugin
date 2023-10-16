@@ -5,3 +5,6 @@ This Plugin can be used to teleport in the Minecraft overworld, nether and end. 
 ## Installation
 
 The plugin only works on Minecraft-Spigot servers. To install it, just generate a jar-File of the Java-Code and add it on the MC-Server in the **plugin/**-Folder
+
+## Docker
+ToDo
