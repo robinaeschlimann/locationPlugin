@@ -14,37 +14,36 @@ public class SetLocationCommand implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if( sender instanceof Player )
+        if( !(sender instanceof Player player) )
         {
-            Player player = (Player) sender;
+            return false;
+        }
 
-            if( args.length == 1 )
-            {
-                String locationName = args[0];
-                String worldName = player.getWorld().getName();
-                double xCoordinate = player.getLocation().getX();
-                double yCoordinate = player.getLocation().getY();
-                double zCoordinate = player.getLocation().getZ();
-                float yaw = player.getLocation().getYaw();
-                float pitch = player.getLocation().getPitch();
+        if( args.length != 1 )
+        {
+            player.sendMessage(ChatColor.RED + "Bitte gib dem gesetzten Punkt noch einen Titel" );
+            return false;
+        }
 
-                ILocationService locationService = Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider();
+        String locationName = args[0];
+        String worldName = player.getWorld().getName();
+        double xCoordinate = player.getLocation().getX();
+        double yCoordinate = player.getLocation().getY();
+        double zCoordinate = player.getLocation().getZ();
+        float yaw = player.getLocation().getYaw();
+        float pitch = player.getLocation().getPitch();
 
-                ILocation location = locationService.addLocation( locationName, worldName, xCoordinate, yCoordinate, zCoordinate, yaw, pitch );
+        ILocationService locationService = Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider();
 
-                if( location != null )
-                {
-                    player.sendMessage(ChatColor.DARK_GREEN + "Diese Location wurde erfolgreich gespeichert!");
-                }
-                else
-                {
-                    player.sendMessage( ChatColor.RED + "Dieser Name ist bereits vergeben. Bitte wähle einen anderen!" );
-                }
-            }
-            else
-            {
-                player.sendMessage(ChatColor.RED + "Bitte gib dem gesetzten Punkt noch einen Titel" );
-            }
+        ILocation location = locationService.addLocation( locationName, worldName, xCoordinate, yCoordinate, zCoordinate, yaw, pitch );
+
+        if( location != null )
+        {
+            player.sendMessage(ChatColor.DARK_GREEN + "Diese Location wurde erfolgreich gespeichert!");
+        }
+        else
+        {
+            player.sendMessage( ChatColor.RED + "Dieser Name ist bereits vergeben. Bitte wähle einen anderen!" );
         }
 
         return false;

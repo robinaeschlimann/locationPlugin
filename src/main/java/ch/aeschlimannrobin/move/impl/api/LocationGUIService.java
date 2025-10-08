@@ -3,10 +3,8 @@ package ch.aeschlimannrobin.move.impl.api;
 import ch.aeschlimannrobin.move.api.ILocation;
 import ch.aeschlimannrobin.move.api.ILocationGUIService;
 import ch.aeschlimannrobin.move.api.ILocationService;
-import com.sun.istack.internal.NotNull;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,16 +13,20 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class LocationGUIService implements ILocationGUIService, Listener
 {
     private Inventory inventory;
 
     @Override
-    public void showGUI( Player player )
+    public void
+    showGUI( Player player )
     {
         if( inventory == null )
         {
@@ -41,36 +43,38 @@ public class LocationGUIService implements ILocationGUIService, Listener
         player.openInventory( inventory );
     }
 
-    @NotNull
     @Override
     public List<ItemStack> getItems()
     {
-        List<ItemStack> returnValue = new ArrayList<>();
-        ILocationService locationService = Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider();
+       return getLocationService()
+                .map( this::getLocations )
+                .orElse( Collections.emptyList() );
+    }
 
-        if( locationService != null )
-        {
-            for( ILocation location : locationService.getLocations() )
-            {
-                List<String> lore = new ArrayList<>();
-                lore.add( "World: " + location.getWorld() );
-                lore.add( "x: " + location.getXCoordinate() );
-                lore.add( "y: " + location.getYCoordinate() );
-                lore.add( "z: " + location.getZCoordinate() );
+    private List<ItemStack> getLocations( ILocationService locationService )
+    {
+        return locationService.getLocations().stream()
+                .map( this::mapToItemStack )
+                .toList();
+    }
 
-                ItemStack itemStack = new ItemStack( Material.FILLED_MAP );
-                ItemMeta itemMeta = itemStack.getItemMeta();
-                itemMeta.setDisplayName( ChatColor.GREEN + location.getName() );
-                itemMeta.setLocalizedName( location.getName() );
-                itemMeta.setLore( lore );
+    private ItemStack mapToItemStack( ILocation location )
+    {
+        List<String> lore = new ArrayList<>();
+        lore.add( "World: " + location.getWorld() );
+        lore.add( "x: " + location.getXCoordinate() );
+        lore.add( "y: " + location.getYCoordinate() );
+        lore.add( "z: " + location.getZCoordinate() );
 
-                itemStack.setItemMeta( itemMeta );
+        ItemStack itemStack = new ItemStack( Material.FILLED_MAP );
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName( location.getName() );
+        itemMeta.setLocalizedName( location.getName() );
+        itemMeta.setLore( lore );
 
-                returnValue.add( itemStack );
-            }
-        }
+        itemStack.setItemMeta( itemMeta );
 
-        return returnValue;
+        return itemStack;
     }
 
     @EventHandler
@@ -83,8 +87,14 @@ public class LocationGUIService implements ILocationGUIService, Listener
             event.setCancelled( true );
             Player player = (Player) event.getWhoClicked();
 
-
-            Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider().teleportPlayer( player, currentItem.getItemMeta().getLocalizedName() );
+            getLocationService().ifPresent( service -> service.teleportPlayer( player, Optional.ofNullable( currentItem.getItemMeta() ).map( ItemMeta::getLocalizedName ).orElse( "" ) ) );
         }
+    }
+
+    private static Optional<ILocationService> getLocationService()
+    {
+        return Optional.ofNullable( Bukkit.getServicesManager()
+                        .getRegistration( ILocationService.class ) )
+                .map( RegisteredServiceProvider::getProvider );
     }
 }

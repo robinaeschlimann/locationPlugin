@@ -12,20 +12,18 @@ public class DeleteLocationCommand implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if( args.length == 1 )
-        {
-            String locationToDelete = args[0];
-
-            FileConfiguration fileConfiguration = MoveModule.getInstance().getConfig();
-
-            fileConfiguration.set( "command.locations." + locationToDelete, null );
-
-            MoveModule.getInstance().saveConfig();
-        }
-        else
+        if( args.length != 1 )
         {
             sender.sendMessage(ChatColor.RED + "Bitte gib die Location an, welche gelöscht werden muss" );
         }
+
+        String locationToDelete = args[0];
+
+        FileConfiguration fileConfiguration = MoveModule.getInstance().getConfig();
+
+        fileConfiguration.set( "command.locations." + locationToDelete, null );
+
+        MoveModule.getInstance().saveConfig();
 
         return false;
     }

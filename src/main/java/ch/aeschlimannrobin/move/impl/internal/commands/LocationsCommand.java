@@ -17,41 +17,48 @@ public class LocationsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
-        FileConfiguration fileConfiguration = MoveModule.getInstance().getConfig();
-
-        String locationsMessage = ChatColor.BLUE + "";
-
-        boolean isFirst = true;
-
-        if( sender instanceof Player )
+        if( sender instanceof Player player )
         {
-            ILocationGUIService locationGUIService = Bukkit.getServicesManager()
-                    .getRegistration( ILocationGUIService.class )
-                    .getProvider();
-
-            locationGUIService.showGUI( (Player) sender );
+            showGui( player );
         }
         else
         {
-            ILocationService locationService = Bukkit.getServicesManager()
-                    .getRegistration( ILocationService.class )
-                    .getProvider();
-
-            for ( ILocation location : locationService.getLocations() )
-            {
-                if ( !isFirst )
-                {
-                    locationsMessage += "\n";
-                }
-
-                locationsMessage += "- " + location.getName();
-
-                isFirst = false;
-            }
-
-            sender.sendMessage( ChatColor.GREEN + "Folgende Locations wurden bereits gesetzt: \n" + locationsMessage );
+            showLocationsOnConsole( sender );
         }
 
         return false;
+    }
+
+    private static void showLocationsOnConsole( CommandSender sender )
+    {
+        ILocationService locationService = Bukkit.getServicesManager()
+                .getRegistration( ILocationService.class )
+                .getProvider();
+
+        StringBuilder locationsMessage = new StringBuilder( ChatColor.BLUE + "" );
+        boolean isFirst = true;
+        for ( ILocation location : locationService.getLocations() )
+        {
+            if ( !isFirst )
+            {
+                locationsMessage.append( "\n" );
+            }
+
+            locationsMessage.append( "- " );
+            locationsMessage.append( location.getName() );
+
+            isFirst = false;
+        }
+
+        sender.sendMessage( ChatColor.GREEN + "Folgende Locations wurden bereits gesetzt: \n" + locationsMessage.toString() );
+    }
+
+    private static void showGui( Player sender )
+    {
+        ILocationGUIService locationGUIService = Bukkit.getServicesManager()
+                .getRegistration( ILocationGUIService.class )
+                .getProvider();
+
+        locationGUIService.showGUI( sender );
     }
 }

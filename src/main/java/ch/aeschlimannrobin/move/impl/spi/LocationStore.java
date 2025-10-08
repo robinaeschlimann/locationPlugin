@@ -3,9 +3,6 @@ package ch.aeschlimannrobin.move.impl.spi;
 import ch.aeschlimannrobin.move.impl.MoveModule;
 import ch.aeschlimannrobin.move.spi.ILocationData;
 import ch.aeschlimannrobin.move.spi.ILocationStore;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
@@ -13,14 +10,13 @@ import java.util.List;
 
 public class LocationStore implements ILocationStore
 {
-    private FileConfiguration fileConfiguration;
+    private final FileConfiguration fileConfiguration;
 
     public LocationStore()
     {
         this.fileConfiguration = MoveModule.getInstance().getConfig();
     }
 
-    @Nullable
     @Override
     public ILocationData getLocation( String name )
     {
@@ -41,13 +37,12 @@ public class LocationStore implements ILocationStore
         return returnValue;
     }
 
-    @NotNull
     @Override
     public List<ILocationData> getLocations()
     {
         List<ILocationData> returnValue = new ArrayList<>();
 
-        for( String name :  fileConfiguration.getConfigurationSection( "command.locations" ).getKeys( false ) )
+        for( String name : fileConfiguration.getConfigurationSection( "command.locations" ).getKeys( false ) )
         {
             ILocationData locationData = getLocation( name );
 
