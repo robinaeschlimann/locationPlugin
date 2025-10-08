@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface ILocationStore
 {
+    List<String> getLocationAdmins();
+
     ILocationData getLocation( String name );
 
     List<ILocationData> getLocations();

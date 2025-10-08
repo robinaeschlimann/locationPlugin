@@ -18,6 +18,12 @@ public class LocationStore implements ILocationStore
     }
 
     @Override
+    public List<String> getLocationAdmins()
+    {
+        return fileConfiguration.getStringList( "command.admins" );
+    }
+
+    @Override
     public ILocationData getLocation( String name )
     {
         ILocationData returnValue = null;
@@ -59,8 +65,6 @@ public class LocationStore implements ILocationStore
     public ILocationData addLocation( String name, String world, double xCoordinate, double yCoordinate, double zCoordinate, float yaw, float pitch )
     {
         ILocationData returnValue = null;
-
-        FileConfiguration fileConfiguration = MoveModule.getInstance().getConfig();
 
         if( !fileConfiguration.contains( "command.locations." + name ) )
         {

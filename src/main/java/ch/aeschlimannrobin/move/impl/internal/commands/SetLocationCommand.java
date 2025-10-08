@@ -19,6 +19,14 @@ public class SetLocationCommand implements CommandExecutor
             return false;
         }
 
+        ILocationService locationService = Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider();
+
+        if( !locationService.isPlayerAllowedToSetLocations( player ) )
+        {
+            player.sendMessage(ChatColor.RED + "Du bist nicht bereichtigt neue Locations zu setzen" );
+            return false;
+        }
+
         if( args.length != 1 )
         {
             player.sendMessage(ChatColor.RED + "Bitte gib dem gesetzten Punkt noch einen Titel" );
@@ -32,8 +40,6 @@ public class SetLocationCommand implements CommandExecutor
         double zCoordinate = player.getLocation().getZ();
         float yaw = player.getLocation().getYaw();
         float pitch = player.getLocation().getPitch();
-
-        ILocationService locationService = Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider();
 
         ILocation location = locationService.addLocation( locationName, worldName, xCoordinate, yCoordinate, zCoordinate, yaw, pitch );
 

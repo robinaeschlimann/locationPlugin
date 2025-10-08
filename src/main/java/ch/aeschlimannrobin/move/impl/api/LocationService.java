@@ -8,30 +8,39 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LocationService implements ILocationService
 {
     @Override
+    public boolean isPlayerAllowedToSetLocations( Player player )
+    {
+        return getLocationStore()
+                .map( ILocationStore::getLocationAdmins )
+                .map( admins -> admins.isEmpty() || admins.contains( player.getUniqueId().toString() ) )
+                .orElse( false );
+    }
+
+    @Override
     public ILocation getLocation( String name )
     {
-        ILocationData locationData = Bukkit.getServicesManager()
-                .getRegistration( ILocationStore.class )
-                .getProvider()
-                .getLocation( name );
-
-        return new Location( locationData );
+        return getLocationStore()
+                .map( store -> store.getLocation( name ) )
+                .map( Location::new )
+                .orElse( null );
     }
 
     @Override
     public List<ILocation> getLocations()
     {
-        List<ILocationData> locationDataList = Bukkit.getServicesManager()
-                .getRegistration( ILocationStore.class )
-                .getProvider()
-                .getLocations();
+        List<ILocationData> locationDataList = getLocationStore()
+                .map( ILocationStore::getLocations )
+                .orElse( Collections.emptyList() );
 
         return locationDataList.stream()
                 .map( Location::new )
@@ -41,10 +50,9 @@ public class LocationService implements ILocationService
     @Override
     public ILocation addLocation( String name, String world, double xCoordinate, double yCoordinate, double zCoordinate, float yaw, float pitch )
     {
-        return new Location( Bukkit.getServicesManager()
-                .getRegistration( ILocationStore.class )
-                .getProvider()
-                .addLocation( name, world, xCoordinate, yCoordinate, zCoordinate, yaw, pitch ) );
+        return new Location( getLocationStore()
+                .map( store -> store.addLocation( name, world, xCoordinate, yCoordinate, zCoordinate, yaw, pitch ) )
+                .orElse( null ) );
     }
 
     @Override
@@ -64,5 +72,12 @@ public class LocationService implements ILocationService
         {
             player.sendMessage( ChatColor.RED + "Für diesen Namen gibt es keine Location. Benutzer /locations um dir alle Möglichkeiten anzuzeigen" );
         }
+    }
+
+    private static Optional<ILocationStore> getLocationStore()
+    {
+        return Optional.ofNullable( Bukkit.getServicesManager()
+                        .getRegistration( ILocationStore.class ) )
+                .map( RegisteredServiceProvider::getProvider );
     }
 }

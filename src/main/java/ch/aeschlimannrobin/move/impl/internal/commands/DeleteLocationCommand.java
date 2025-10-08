@@ -1,16 +1,24 @@
 package ch.aeschlimannrobin.move.impl.internal.commands;
 
+import ch.aeschlimannrobin.move.api.ILocationService;
 import ch.aeschlimannrobin.move.impl.MoveModule;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 public class DeleteLocationCommand implements CommandExecutor
 {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if( sender instanceof Player player && !Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider().isPlayerAllowedToSetLocations( player ) )
+        {
+            sender.sendMessage(ChatColor.RED + "Du bist nicht berechtigt eine Location zu löschen" );
+        }
 
         if( args.length != 1 )
         {

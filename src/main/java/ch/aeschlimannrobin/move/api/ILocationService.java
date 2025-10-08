@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface ILocationService
 {
+    boolean isPlayerAllowedToSetLocations( Player player );
+
     ILocation getLocation( String name );
 
     List<ILocation> getLocations();
