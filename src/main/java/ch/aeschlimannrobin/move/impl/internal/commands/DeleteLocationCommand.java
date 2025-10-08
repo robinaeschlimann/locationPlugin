@@ -18,11 +18,13 @@ public class DeleteLocationCommand implements CommandExecutor
         if( sender instanceof Player player && !Bukkit.getServicesManager().getRegistration( ILocationService.class ).getProvider().isPlayerAllowedToSetLocations( player ) )
         {
             sender.sendMessage(ChatColor.RED + "Du bist nicht berechtigt eine Location zu löschen" );
+            return false;
         }
 
         if( args.length != 1 )
         {
             sender.sendMessage(ChatColor.RED + "Bitte gib die Location an, welche gelöscht werden muss" );
+            return false;
         }
 
         String locationToDelete = args[0];
